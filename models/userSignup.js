@@ -21,6 +21,13 @@ const clientSignup=new mongoose.Schema({
         type:String,
         required:true
     },
+    status:{
+        type:String,
+        default:'pending'
+    },
+    otp:{
+        type:String
+    },
     createdAt:{
         type:Date,
         default:Date.now
