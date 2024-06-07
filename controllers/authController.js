@@ -2,6 +2,7 @@ const clientSignupSchema = require("../models/userSignup");
 const nodemailer = require("../utilities/otp");
 const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
+const emailContent=require('../utilities/emailContent')
 
 const emailRejex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 const passwordRejex =
@@ -27,14 +28,14 @@ exports.userSignup = async (req, res) => {
   } else if (emailCheck && emailCheck.status=='pending'){
     
     const otp = GenerateOtp()
+    const sentMail= await emailContent.generateEmailContent(otp)
 
       const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
         to: email,
         subject: "OTP Verification",
 
-        text: `OTP message from GreenLand
-              Your OTP for signup is: ${otp}`,
+        html: sentMail,
       };
 
       nodemailer.sentEmailOtp(mailOptions);
@@ -58,6 +59,7 @@ exports.userSignup = async (req, res) => {
     res.status(200).json("incorrect email or password");
   } else {
     const otp = GenerateOtp()
+    const sentMail=emailContent.generateEmailContent(otp)
     let userSignup = new clientSignupSchema({
       name: name,
       email: email,
@@ -75,8 +77,7 @@ exports.userSignup = async (req, res) => {
         to: email,
         subject: "OTP Verification",
 
-        text: `OTP message from GreenLand
-              Your OTP for signup is: ${otp}`,
+        html: sentMail,
       };
 
       nodemailer.sentEmailOtp(mailOptions);
@@ -98,14 +99,14 @@ exports.contractorSignup = async (req, res) => {
     } else if (emailCheck && emailCheck.status=='pending'){
       
       const otp = GenerateOtp()
-  
+      const sentMail=generateEmailContent(otp)
+
         const mailOptions = {
           from: process.env.EMAIL_ADDRESS,
           to: email,
           subject: "OTP Verification",
   
-          text: `OTP message from GreenLand
-                Your OTP for signup is: ${otp}`,
+          html:sentMail ,
         };
   
         nodemailer.sentEmailOtp(mailOptions);
@@ -129,7 +130,8 @@ exports.contractorSignup = async (req, res) => {
       res.status(200).json("incorrect email or password");
     } else {
       const otp = GenerateOtp()
-  
+      const sentMail=generateEmailContent(otp)
+
       let userSignup = new clientSignupSchema({
         name: name,
         email: email,
@@ -147,8 +149,7 @@ exports.contractorSignup = async (req, res) => {
           to: email,
           subject: "OTP Verification",
   
-          text: `OTP message from GreenLand
-                Your OTP for signup is: ${otp}`,
+          text:sentMail ,
         };
   
         nodemailer.sentEmailOtp(mailOptions);
@@ -162,17 +163,17 @@ exports.contractorSignup = async (req, res) => {
 // otp post
 exports.signupOtp = async (req, res) => {
   const { otp, userEmail } = req.body;
- if(otp==''){
+ if(otp == ''){
     
     const otpGenerate = GenerateOtp()
+    const sentMail=emailContent.generateEmailContent(otpGenerate)
 
       const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
         to: userEmail,
         subject: "OTP Verification",
 
-        text: `OTP message from GreenLand
-              Your OTP for signup is: ${otpGenerate}`,
+        html:sentMail,
       };
 
       nodemailer.sentEmailOtp(mailOptions);
@@ -205,6 +206,16 @@ exports.signupOtp = async (req, res) => {
             },
           }
         );
+
+        const mailOptions = {
+          from: process.env.EMAIL_ADDRESS,
+          to: userData.email,
+          subject: "Signup Successful!",
+  
+          html: emailContent.signupSuccess
+        }
+      nodemailer.sentEmailOtp(mailOptions);
+
         res.status(200).json("otp verification success");
       } else {
         res.status(200).json("otp verification failed");
@@ -227,8 +238,7 @@ exports.resetPassEmail=async(req,res)=>{
         to: email,
         subject: "Reset password OTP Verification",
 
-        text: `OTP message from GreenLand
-              Your OTP for reset password is: ${otpGenerate}`,
+        html: emailContent.resetPasswordOTP(otpGenerate),
       };
 
       nodemailer.sentEmailOtp(mailOptions);
@@ -264,7 +274,7 @@ exports.resetPassEmail=async(req,res)=>{
       to: email,
       subject: " password Updated successfully",
 
-      text: `Your password has been successfully updated`,
+      html: emailContent.resetPasswordSuccess,
     };
 
     nodemailer.sentEmailOtp(mailOptions);
