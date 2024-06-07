@@ -8,6 +8,14 @@ const passwordRejex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 
+const GenerateOtp=()=>{
+    return otpGenerator.generate(4, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+        lowerCaseAlphabets: false,
+      });
+}
+
 // user signup post
 exports.userSignup = async (req, res) => {
   const { name, email, mobNo, password } = req.body;
@@ -18,11 +26,7 @@ exports.userSignup = async (req, res) => {
     res.status(200).json("email already used");
   } else if (emailCheck && emailCheck.status=='pending'){
     
-    const otp = otpGenerator.generate(4, {
-        upperCaseAlphabets: false,
-        specialChars: false,
-        lowerCaseAlphabets: false,
-      });
+    const otp = GenerateOtp()
 
       const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
@@ -53,12 +57,7 @@ exports.userSignup = async (req, res) => {
   }else if (!passwordRejex.test(password) || !emailRejex.test(email)) {
     res.status(200).json("incorrect email or password");
   } else {
-    const otp = otpGenerator.generate(4, {
-      upperCaseAlphabets: false,
-      specialChars: false,
-      lowerCaseAlphabets: false,
-    });
-
+    const otp = GenerateOtp()
     let userSignup = new clientSignupSchema({
       name: name,
       email: email,
@@ -98,11 +97,7 @@ exports.contractorSignup = async (req, res) => {
       res.status(200).json("email already used");
     } else if (emailCheck && emailCheck.status=='pending'){
       
-      const otp = otpGenerator.generate(4, {
-          upperCaseAlphabets: false,
-          specialChars: false,
-          lowerCaseAlphabets: false,
-        });
+      const otp = GenerateOtp()
   
         const mailOptions = {
           from: process.env.EMAIL_ADDRESS,
@@ -133,11 +128,7 @@ exports.contractorSignup = async (req, res) => {
     }else if (!passwordRejex.test(password) || !emailRejex.test(email)) {
       res.status(200).json("incorrect email or password");
     } else {
-      const otp = otpGenerator.generate(4, {
-        upperCaseAlphabets: false,
-        specialChars: false,
-        lowerCaseAlphabets: false,
-      });
+      const otp = GenerateOtp()
   
       let userSignup = new clientSignupSchema({
         name: name,
@@ -171,23 +162,144 @@ exports.contractorSignup = async (req, res) => {
 // otp post
 exports.signupOtp = async (req, res) => {
   const { otp, userEmail } = req.body;
-  const userData = await clientSignupSchema.findOne({ email: userEmail });
-  if (userData) {
-    if (userData.otp === otp) {
-      await clientSignupSchema.findOneAndUpdate(
-        {
-          email: userEmail,
-        },
-        {
-          $set: {
-            status: "Active",
-            otp: "",
+ if(otp==''){
+    
+    const otpGenerate = GenerateOtp()
+
+      const mailOptions = {
+        from: process.env.EMAIL_ADDRESS,
+        to: userEmail,
+        subject: "OTP Verification",
+
+        text: `OTP message from GreenLand
+              Your OTP for signup is: ${otpGenerate}`,
+      };
+
+      nodemailer.sentEmailOtp(mailOptions);
+      const userData = await clientSignupSchema.findOne({ email: userEmail });
+      if (userData) {
+          await clientSignupSchema.findOneAndUpdate(
+            {
+              email: userEmail,
+            },
+            {
+              $set: {
+                otp: otpGenerate
+              },
+            }
+          );
+        } 
+      res.status(200).json('status pending otp sent')
+ }else{
+    const userData = await clientSignupSchema.findOne({ email: userEmail });
+    if (userData) {
+      if (userData.otp === otp) {
+        await clientSignupSchema.findOneAndUpdate(
+          {
+            email: userEmail,
           },
-        }
-      );
-      res.status(200).json("otp verification success");
-    } else {
-      res.status(200).json("otp verification failed");
+          {
+            $set: {
+              status: "Active",
+              otp: "",
+            },
+          }
+        );
+        res.status(200).json("otp verification success");
+      } else {
+        res.status(200).json("otp verification failed");
+      }
     }
-  }
+ }
 };
+
+// reset pass email
+exports.resetPassEmail=async(req,res)=>{
+  const {email,password}=req.body
+  
+  const user=await clientSignupSchema.findOne({email:email})
+
+  if(user && password==''){
+    const otpGenerate = GenerateOtp()
+
+      const mailOptions = {
+        from: process.env.EMAIL_ADDRESS,
+        to: email,
+        subject: "Reset password OTP Verification",
+
+        text: `OTP message from GreenLand
+              Your OTP for reset password is: ${otpGenerate}`,
+      };
+
+      nodemailer.sentEmailOtp(mailOptions);
+
+          await clientSignupSchema.findOneAndUpdate(
+            {
+              email: email,
+            },
+            {
+              $set: {
+                otp: otpGenerate
+              },
+            }
+          );
+        
+        res.status(200).json('email sent')
+  
+  }else if(user && password){
+    const hashPas = await bcrypt.hash(password, 10);
+
+    await clientSignupSchema.findOneAndUpdate(
+      {
+        email: email,
+      },
+      {
+        $set: {
+          password: hashPas
+        },
+      }
+    );
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: email,
+      subject: " password Updated successfully",
+
+      text: `Your password has been successfully updated`,
+    };
+
+    nodemailer.sentEmailOtp(mailOptions);
+    res.status(200).json('password updated')
+
+    
+  }else{
+    res.status(200).json('no user data fount')
+  }
+
+
+
+}
+
+// reset pass otp post
+exports.resetPasswordOtp=async(req,res)=>{
+  const {otp,userEmail}=req.body
+  const userData = await clientSignupSchema.findOne({ email: userEmail });
+    if (userData) {
+      if (userData.otp === otp) {
+        await clientSignupSchema.findOneAndUpdate(
+          {
+            email: userEmail,
+          },
+          {
+            $set: {
+              otp: "",
+            },
+          }
+        );
+        res.status(200).json("otp verification success");
+      } else {
+        res.status(200).json("otp verification failed");
+      }
+    }else{
+      res.status(200).json("no user fount");
+    }
+}
