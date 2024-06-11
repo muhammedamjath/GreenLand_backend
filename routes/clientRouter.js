@@ -8,5 +8,6 @@ clientRouter.post('/contractorSignup',authController.contractorSignup)
 clientRouter.post('/signupOtp',authController.signupOtp)
 clientRouter.post('/forgetPassword',authController.resetPassEmail)
 clientRouter.post('/resetPassword',authController.resetPasswordOtp)
+clientRouter.post('/login',authController.loginPost)
 
 module.exports=clientRouter

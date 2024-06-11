@@ -25,6 +25,9 @@ const clientSignup=new mongoose.Schema({
         type:String,
         default:'pending'
     },
+    image:{
+        type:String
+    },
     otp:{
         type:String
     },
