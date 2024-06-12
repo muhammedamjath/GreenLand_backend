@@ -25,6 +25,10 @@ const Schema=new mongoose.Schema({
         type:String,
         required:true
     },
+    contractorId:{
+        type:mongoose.Types.ObjectId,
+        required:true
+    },
     createdAt:{
         type:Date,
         default:Date.now
