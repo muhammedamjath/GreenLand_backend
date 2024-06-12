@@ -1,13 +1,12 @@
-const express=require('express')
+const express = require('express')
 const clientRouter=express.Router()
 
-const authController=require('../controllers/authController')
+const contractorController=require('../controllers/contractorController')
+const multer=require('../middleware/multer')
 
-clientRouter.post('/userSignup',authController.userSignup)
-clientRouter.post('/contractorSignup',authController.contractorSignup)
-clientRouter.post('/signupOtp',authController.signupOtp)
-clientRouter.post('/forgetPassword',authController.resetPassEmail)
-clientRouter.post('/resetPassword',authController.resetPasswordOtp)
-clientRouter.post('/login',authController.loginPost)
+
+clientRouter.post('/componyRegistration',multer.single('image'),contractorController.componyReg)
+
+
 
 module.exports=clientRouter

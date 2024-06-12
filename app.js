@@ -3,7 +3,8 @@ require('dotenv').config()
 const dbConnect=require('./config/connection')
 
 
-const client=require('./routes/clientRouter')
+const authRouter=require('./routes/authRouter')
+const clientRouter=require('./routes/clientRouter')
 
 
 const app=express()
@@ -15,7 +16,8 @@ app.use(cors())
 app.use(express.urlencoded({extended:true}))
 
 
-app.use('/client',client)
+app.use('/auth',authRouter)
+app.use('/client',clientRouter)
 
 
 
