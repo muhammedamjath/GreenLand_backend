@@ -95,7 +95,7 @@ exports.contractorSignup = async (req, res) => {
     res.status(200).json("email already used");
   } else if (emailCheck && emailCheck.status == "pending") {
     const otp = GenerateOtp();
-    const sentMail = generateEmailContent(otp);
+    const sentMail = emailContent.generateEmailContent(otp);
 
     const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
@@ -124,7 +124,7 @@ exports.contractorSignup = async (req, res) => {
     res.status(200).json("incorrect email or password");
   } else {
     const otp = GenerateOtp();
-    const sentMail = generateEmailContent(otp);
+    const sentMail = emailContent.generateEmailContent(otp);
 
     let userSignup = new clientSignupSchema({
       name: name,
@@ -143,7 +143,7 @@ exports.contractorSignup = async (req, res) => {
         to: email,
         subject: "OTP Verification",
 
-        text: sentMail,
+        html: sentMail,
       };
 
       nodemailer.sentEmailOtp(mailOptions);

@@ -9,6 +9,10 @@ const Schema=new mongoose.Schema({
         type:String,
         required:true
     },
+    imageKey:{
+        type:String,
+        required:true
+    },
     location:{
         type:String,
         required:true
