@@ -2,13 +2,16 @@ const { default: mongoose } = require("mongoose");
 const componyRegCollection = require("../models/componyRegister");
 const clientSignupSchema = require("../models/userSignup");
 const deleteImageFromS3=require('../middleware/multer')
+const notificationCollection= require('../models/notification');
+
 
 // get user detailes
 exports.getUser = async (req, res) => {
   userId = req.user;
   const userData = await clientSignupSchema.findById(userId.id);
   if (userData) {
-    res.status(200).json(userData);
+    const messages= await notificationCollection.find({contractorId:new mongoose.Types.ObjectId(userId)})
+    res.status(200).json({userData:userData,messages:messages});
   } else {
     res.status(401).json({ message: "no userData fount" });
   }
