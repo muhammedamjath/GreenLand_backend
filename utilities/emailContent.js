@@ -318,3 +318,103 @@ const resetPasswordOTP = `<!DOCTYPE html>
 exports.resetPasswordOTP=(otp)=>{
     return resetPasswordOTP.replace('{{OTP}}',otp)
 }
+
+
+// contractor notification
+exports.connectionRequestMail = (contractorName, userName, companyName, requestDate) => {
+    const template = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Connection Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .details {
+            text-align: left;
+            margin: 20px 0;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Connection Request!</h1>
+        </div>
+        <div class="content">
+            <p>Dear ${contractorName},</p>
+            <p>You have received a new connection request from <strong>${userName}</strong> for the company <strong>${companyName}</strong> on GreenLand.</p>
+            <div class="details">
+                <div class="detail-item">
+                    <span class="detail-label">User Name:</span> ${userName}
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Company Name:</span> ${companyName}
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Request Date:</span> ${requestDate}
+                </div>
+            </div>
+            <p>Please log in to your GreenLand account to review the request and take the necessary action.</p>
+            <p>Thank you for using GreenLand, and we look forward to helping you connect with more clients.</p>
+            <p>Best regards,</p>
+            <p>The GreenLand Team</p>
+        </div>
+        <div class="footer">
+            <p>Need help? <a href="https://www.greenland.com/support">Contact our support team</a></p>
+            <p>Follow us on:</p>
+            <p>
+                <a href="https://www.facebook.com/greenland">Facebook</a> |
+                <a href="https://www.twitter.com/greenland">Twitter</a> |
+                <a href="https://www.instagram.com/greenland">Instagram</a>
+            </p>
+            <p>&copy; 2024 GreenLand. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    return template;
+}
+
+

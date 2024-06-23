@@ -3,6 +3,10 @@ const clientSignupSchema = require("../models/userSignup");
 const deleteImageFromS3=require('../middleware/multer')
 const notificationCollection= require('../models/notification');
 const { default: mongoose } = require("mongoose");
+const emailContent = require("../utilities/emailContent");
+const moment = require('moment');
+const nodemailer = require("../utilities/otp");
+
 
 
 exports.getAllComponys=async(req,res)=>{
@@ -17,12 +21,29 @@ exports.getAllComponys=async(req,res)=>{
 // notification saving
 exports.notification = async(req,res)=>{
     const componyId=req.query.id;
-    const userId=req.user
+    const userId=req.user.id
     let contractorId;
+    let userName;
+    let componyName;
+    let contractorName;
+    let requestDate;
+    let email;
+
+    const user= await clientSignupSchema.findById(userId)
+    if(user){
+        userName=user.name
+    }
 
     const componyDetailes= await componyRegCollection.findById(componyId)
     if(componyDetailes){
         contractorId=componyDetailes.contractorId
+        componyName=componyDetailes.componyName
+    }
+
+    const contractor = await clientSignupSchema.findById(contractorId)
+    if(contractor){
+        contractorName=contractor.name
+        email=contractor.email
     }
 
     const saveNotification= new  notificationCollection({
@@ -33,6 +54,18 @@ exports.notification = async(req,res)=>{
 
     if(saveNotification){
         await saveNotification.save()
+        const date = saveNotification.createdAt
+         requestDate = moment(date).format('Do MMMM YYYY');
+        
+         const mailOptions = {
+            from: process.env.EMAIL_ADDRESS,
+            to: email,
+            subject: "OTP Verification",
+      
+            html: emailContent.connectionRequestMail(contractorName,userName,componyName,requestDate),
+          };
+
+        nodemailer.sentEmailOtp(mailOptions)
         res.status(200).json(saveNotification)
     }else{
         res.status(403).json({message:'pls try again'})
