@@ -1,43 +1,48 @@
 const express= require ('express')
-require('dotenv').config()
-const http =require('http')
-const dbConnect=require('./config/connection')
 const {Server} = require('socket.io')
+require('dotenv').config()
+const dbConnect=require('./config/connection')
 const cors=require('cors')
+const app=express()
+const server =require('http').createServer(app)
 
 
+const io = new Server(server,{
+    cors:{
+        origin:'*',
+    },
+})
 
+const port=process.env.PORT
+
+app.use(express.json())
+app.use(cors())
+app.use(express.urlencoded({extended:true}))
 
 const authRouter=require('./routes/authRouter')
 const clientRouter=require('./routes/clientRouter')
-
-
-const app=express()
-app.use(cors( {
-    origin: 'http://localhost:4200' // Allow CORS from your Angular app
-  }))
-const port=process.env.PORT
-
-const server= http.createServer(app)
-const io = new Server(server,{
-    
-});
-
-io.on('connection',(socket) => {
-    console.log('connected');
-})
-
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
-
 
 app.use('/auth',authRouter)
 app.use('/client',clientRouter)
 
 
 
+io.on('connection',(socket)=>{
+    console.log('new client connected');
+
+    socket.on('sendMessage',(data)=>{
+        io.emit('recivedMessage',data)
+        console.log(data);
+    })
+            
+    socket.on('disconnect',()=>{
+        console.log('client disconnected');
+    })
+})
+
+
 dbConnect().then(()=>{
-    app.listen(port,()=>{ 
+    server.listen(port,()=>{ 
         console.log(`GreenLand connected in ${port}` );
     })
     

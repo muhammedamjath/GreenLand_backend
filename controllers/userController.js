@@ -60,8 +60,7 @@ exports.notification = async(req,res)=>{
          const mailOptions = {
             from: process.env.EMAIL_ADDRESS,
             to: email,
-            subject: "OTP Verification",
-      
+            subject: "Connection requist",
             html: emailContent.connectionRequestMail(contractorName,userName,componyName,requestDate),
           };
 
