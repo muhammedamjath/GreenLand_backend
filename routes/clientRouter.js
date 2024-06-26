@@ -17,6 +17,7 @@ clientRouter.get('/getAllCompony',jwtAuthentication,userController.getAllCompony
 clientRouter.post('/notification',jwtAuthentication,userController.notification)
 clientRouter.get('/notificationGet',jwtAuthentication,userController.notificationGet)
 clientRouter.get('/singleNotificationGet',jwtAuthentication,contractorController.singleNotificationGet)
+clientRouter.post('/approvedEmail',jwtAuthentication,contractorController.connectedEmailSent)
 
 
 

@@ -83,7 +83,7 @@ exports.notificationGet = async (req, res) => {
       contractorId: new mongoose.Types.ObjectId(userId),
     });
     if (notificationData.length != 0) {
-      const user = await notificationCollection.aggregate([
+      const notificationWithUser = await notificationCollection.aggregate([
         {
         $match:{contractorId:new mongoose.Types.ObjectId(userId)},
         },
@@ -94,22 +94,28 @@ exports.notificationGet = async (req, res) => {
                 foreignField:"_id",
                 as:'userData'
             }   
-        }
+        },
+        {
+          $sort: {
+            status: -1, // Sort by status in descending order (unread first)
+          },
+        },
       ])
       let obj = []
-      for (let data of user){
+      for (let data of notificationWithUser){
         let object ={
             date:moment(data.createdAt).format("Do MMMM YYYY"),
             ...data
         }
         obj.push(object)
       }
-      console.log();
       res.status(200).json(obj);
     } else {
       res.status(200).json(null);
     }
-  } else {
+  }
+  // for user side
+  else {
     const notificationData = await notificationCollection.find({
       userId: new mongoose.Types.ObjectId(userId),
       componyId: new mongoose.Types.ObjectId(componyId),

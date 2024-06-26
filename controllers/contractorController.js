@@ -4,6 +4,8 @@ const clientSignupSchema = require("../models/userSignup");
 const deleteImageFromS3=require('../middleware/multer')
 const notificationCollection= require('../models/notification');
 const { GetBucketLoggingCommand } = require("@aws-sdk/client-s3");
+const emailContent = require("../utilities/emailContent");
+const nodemailer = require("../utilities/otp");
 
 
 // get user detailes
@@ -143,5 +145,38 @@ exports.singleNotificationGet=async (req,res)=>{
   const userData= await clientSignupSchema.findById(notificationData.userId)
   const componyData= await componyRegCollection.findById(notificationData.componyId)
   
-  res.status(200).json({userData : userData , componyData : componyData})
+  res.status(200).json({userData : userData , componyData : componyData , notificationData: notificationData})
+}
+
+// sent email when the connection reaqust has been sent
+exports.connectedEmailSent= async (req,res) =>{
+  const {notificationId,custemerData,componyData} = req.body
+  const userName=custemerData.name
+  const companyName= componyData.componyName
+  const workCategory= componyData.category
+  try{
+    const notificationUpdate = await notificationCollection.findOneAndUpdate(
+      {_id:new mongoose.Types.ObjectId(notificationId)},
+      {
+        $set : {
+          status:'mailed'
+        }
+      },
+      {new:true}
+    )
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: custemerData.email,
+      subject: "Requst accepted",
+      html: emailContent.connectionApprovalMail(userName ,companyName , workCategory)
+    };
+    nodemailer.sentEmailOtp(mailOptions)
+    if(notificationUpdate){
+      res.status(200).json(notificationUpdate)
+    }
+
+  }catch(err){
+    console.log(err);
+  }
+
 }

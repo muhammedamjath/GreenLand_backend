@@ -417,4 +417,75 @@ exports.connectionRequestMail = (contractorName, userName, companyName, requestD
     return template;
 }
 
-
+// connection approved email
+exports.connectionApprovalMail = (userName , companyName, workCategory) => {
+    const template = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Request Approved</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Connection Request Approved!</h1>
+        </div>
+        <div class="content">
+            <p>Dear ${userName},</p>
+            <p>Your request has been accepted by <strong>${companyName}</strong> for the <strong>${workCategory}</strong> work. You will be connected shortly to proceed with your project. Thank you for using GreenLand!</p>
+            <p>Best regards,</p>
+            <p>The GreenLand Team</p>
+        </div>
+        <div class="footer">
+            <p>Need assistance? <a href="https://www.greenland.com/support">Contact our support team</a></p>
+            <p>Stay connected:</p>
+            <p>
+                <a href="https://www.facebook.com/greenland">Facebook</a> |
+                <a href="https://www.twitter.com/greenland">Twitter</a> |
+                <a href="https://www.instagram.com/greenland">Instagram</a>
+            </p>
+            <p>&copy; 2024 GreenLand. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    return template;
+}
