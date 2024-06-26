@@ -16,6 +16,7 @@ clientRouter.post('/profilePhotoUpdate',jwtAuthentication,multer.upload.single('
 clientRouter.get('/getAllCompony',jwtAuthentication,userController.getAllComponys)
 clientRouter.post('/notification',jwtAuthentication,userController.notification)
 clientRouter.get('/notificationGet',jwtAuthentication,userController.notificationGet)
+clientRouter.get('/singleNotificationGet',jwtAuthentication,contractorController.singleNotificationGet)
 
 
 

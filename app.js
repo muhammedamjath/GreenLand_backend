@@ -21,24 +21,16 @@ app.use(express.urlencoded({extended:true}))
 
 const authRouter=require('./routes/authRouter')
 const clientRouter=require('./routes/clientRouter')
+const socket= require('./utilities/socketIo')
+
 
 app.use('/auth',authRouter)
 app.use('/client',clientRouter)
 
+socket.socket(io)
 
 
-io.on('connection',(socket)=>{
-    console.log('new client connected');
 
-    socket.on('sendMessage',(data)=>{
-        io.emit('recivedMessage',data)
-        console.log(data);
-    })
-            
-    socket.on('disconnect',()=>{
-        console.log('client disconnected');
-    })
-})
 
 
 dbConnect().then(()=>{

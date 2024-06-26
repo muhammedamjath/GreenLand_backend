@@ -3,6 +3,7 @@ const componyRegCollection = require("../models/componyRegister");
 const clientSignupSchema = require("../models/userSignup");
 const deleteImageFromS3=require('../middleware/multer')
 const notificationCollection= require('../models/notification');
+const { GetBucketLoggingCommand } = require("@aws-sdk/client-s3");
 
 
 // get user detailes
@@ -134,3 +135,13 @@ exports.changeProfileImage = async (req, res) => {
   
   }
 };
+
+// single notification get
+exports.singleNotificationGet=async (req,res)=>{
+  const notificatioId= req.query.id
+  const notificationData= await notificationCollection.findById(notificatioId)
+  const userData= await clientSignupSchema.findById(notificationData.userId)
+  const componyData= await componyRegCollection.findById(notificationData.componyId)
+  
+  res.status(200).json({userData : userData , componyData : componyData})
+}
