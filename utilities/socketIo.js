@@ -4,26 +4,19 @@ exports.socket = (io)=>{
     io.on('connection',(socket)=>{
         console.log('new client connected');
     
-        socket.on('sendMessage',(data)=>{
-            io.emit('recivedMessage',data)
-            console.log(data);
-        })
-
-        socket.on('register', (username) => {
-            users[username] = socket.id;
-            socket.username = username;
-            console.log(`User registered: ${username} with socket ID: ${socket.id}`);
+        socket.on('register', (reciverId) => {
+            users[reciverId] = socket.id;
+            socket.reciverId = reciverId;
+            console.log(`User registered: ${reciverId} with socket ID: ${socket.id}`);
         });
-    
-        
-        socket.on('private_message', ({ recipient, message }) => {
-            if (users[recipient]) {
-                io.to(users[recipient]).emit('private_message', {
-                    sender: socket.username,
-                    message
-                });
+
+  
+        socket.on('sendMessage', (  message ) => {
+            const receiverSocketId = users[message.receiver];
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit('recivedMessage',message);
             } else {
-                socket.emit('user_not_found', recipient);
+                socket.emit('user_not_found', receiverSocketId);
             }
         });
 

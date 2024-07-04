@@ -5,6 +5,7 @@ const jwtAuthentication=require('../middleware/jwtAuthentication')
 const contractorController=require('../controllers/contractorController')
 const multer=require('../middleware/multer')
 const userController=require('../controllers/userController')
+const chatController= require('../controllers/chatController')
 
 
 clientRouter.post('/componyRegistration',jwtAuthentication,multer.upload.single('image'),contractorController.componyReg)
@@ -18,7 +19,9 @@ clientRouter.post('/notification',jwtAuthentication,userController.notification)
 clientRouter.get('/notificationGet',jwtAuthentication,userController.notificationGet)
 clientRouter.get('/singleNotificationGet',jwtAuthentication,contractorController.singleNotificationGet)
 clientRouter.post('/approvedEmail',jwtAuthentication,contractorController.connectedEmailSent)
-
+clientRouter.post('/chatPost',jwtAuthentication,chatController.chatPost)
+clientRouter.get('/chatList',jwtAuthentication,chatController.getChatList)
+clientRouter.post('/chatHistory',jwtAuthentication,chatController.chatHistoryGet)
 
 
 module.exports=clientRouter

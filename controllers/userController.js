@@ -97,7 +97,7 @@ exports.notificationGet = async (req, res) => {
         },
         {
           $sort: {
-            status: -1, // Sort by status in descending order (unread first)
+            status: -1,
           },
         },
       ])

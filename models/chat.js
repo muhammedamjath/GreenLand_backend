@@ -9,10 +9,16 @@ const schema = new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         required:true
     },
+    componyId:{
+        type:mongoose.Types.ObjectId
+    },
     messages:{
         type:[{
-            senter:{
-                type:String,
+            sender:{
+                type:mongoose.Types.ObjectId,
+            },
+            receiver:{
+                type:mongoose.Types.ObjectId
             },
             message:{
                 type:String
@@ -23,7 +29,6 @@ const schema = new mongoose.Schema({
             }
         }]
     }
-
 })
 
 const chatCollection= new mongoose.model('chat',schema)
