@@ -22,6 +22,8 @@ clientRouter.post('/approvedEmail',jwtAuthentication,contractorController.connec
 clientRouter.post('/chatPost',jwtAuthentication,chatController.chatPost)
 clientRouter.get('/chatList',jwtAuthentication,chatController.getChatList)
 clientRouter.post('/chatHistory',jwtAuthentication,chatController.chatHistoryGet)
+clientRouter.get('/receiverData',jwtAuthentication,chatController.receiverData)
+clientRouter.get('/workHistory',jwtAuthentication,userController.workhistory)
 
 
 module.exports=clientRouter

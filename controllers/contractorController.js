@@ -11,7 +11,7 @@ const nodemailer = require("../utilities/otp");
 // get user detailes
 exports.getUser = async (req, res) => {
   userId = req.user;
-  const userData = await clientSignupSchema.findById(userId.id);
+  const userData = await clientSignupSchema.findById(userId.id).select('-password');
   if (userData) {
     const messages= await notificationCollection.find({contractorId:new mongoose.Types.ObjectId(userId)})
     res.status(200).json({userData:userData,messages:messages});

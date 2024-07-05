@@ -1,6 +1,7 @@
 const { default: mongoose } = require('mongoose');
 const chatModel= require('../models/chat')
 const clientSignupSchema = require("../models/userSignup");
+const notificationCollection = require('../models/notification');
 
 
 // chat post
@@ -8,7 +9,16 @@ exports.chatPost=async (req,res)=>{
    const {sender,receiver,message,componyId}=req.body
    const userId=req.user.id
    const userData= await clientSignupSchema.findById(userId)
+   const notificationUpdate = await notificationCollection.findOneAndUpdate(
+    {contractorId:new mongoose.Types.ObjectId(sender),userId:new mongoose.Types.ObjectId(receiver),componyId:new mongoose.Types.ObjectId(componyId)},
+    {
+        $set:{
+            status:'messaged'
+        }
+    }
+   )
    if(userData.category == 'contractor'){
+
     const chatUpdate = await chatModel.findOneAndUpdate(
         {contractorId:new mongoose.Types.ObjectId(sender),userId:new mongoose.Types.ObjectId(receiver),componyId:new mongoose.Types.ObjectId(componyId)},
         {
@@ -95,8 +105,6 @@ exports.chatHistoryGet=async(req,res)=>{
     const {componyId , sender , receiver} = req.body
 
     const user = await clientSignupSchema.findById(userId)
-    // console.log(user);
-    // console.log(req.body);
 
     if(user.category == 'contractor'){
         const chatHitory = await chatModel.find({
@@ -119,5 +127,14 @@ exports.chatHistoryGet=async(req,res)=>{
             }
     }else{
         res.status(401).json({message:'user not fount'})
+    }
+}
+
+// receiver data
+exports.receiverData = async (req,res)=>{
+    const receiverId = req.query.id
+    const receiverData = await clientSignupSchema.findById(receiverId,{ password:0});
+    if(receiverData){
+        res.status(200).json(receiverData)
     }
 }
