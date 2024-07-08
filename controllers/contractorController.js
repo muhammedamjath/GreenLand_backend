@@ -6,6 +6,8 @@ const notificationCollection= require('../models/notification');
 const { GetBucketLoggingCommand } = require("@aws-sdk/client-s3");
 const emailContent = require("../utilities/emailContent");
 const nodemailer = require("../utilities/otp");
+const workHistoryCollections = require ('../models/workHistory')
+
 
 
 // get user detailes
@@ -148,7 +150,7 @@ exports.singleNotificationGet=async (req,res)=>{
   res.status(200).json({userData : userData , componyData : componyData , notificationData: notificationData})
 }
 
-// sent email when the connection reaqust has been sent
+// sent email when the connection reaqust has been acceptrd
 exports.connectedEmailSent= async (req,res) =>{
   const {notificationId,custemerData,componyData} = req.body
   const userName=custemerData.name
@@ -164,19 +166,146 @@ exports.connectedEmailSent= async (req,res) =>{
       },
       {new:true}
     )
+
+    // change the status in workHistory
+    const workHistoryData = await workHistoryCollections.findOneAndUpdate(
+      {userId:new mongoose.Types.ObjectId(custemerData._id),componyId:new mongoose.Types.ObjectId(componyData._id)},
+      {
+        $set:{
+          status:'Accepted'
+        }
+      }
+    )
+
     const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
       to: custemerData.email,
-      subject: "Requst accepted",
+      subject: "Request accepted",
       html: emailContent.connectionApprovalMail(userName ,companyName , workCategory)
     };
     nodemailer.sentEmailOtp(mailOptions)
     if(notificationUpdate){
       res.status(200).json(notificationUpdate)
     }
-
   }catch(err){
     console.log(err);
   }
 
+}
+
+// task update
+exports.taskUpdate = async(req,res)=>{
+  const {id,date,discription} = req.body
+  try{
+    const updatedatask = await workHistoryCollections.findOneAndUpdate(
+      {_id:id},
+      {
+        $push :{
+          workUpdates:{
+            date:date,
+            discription:discription
+          }
+        }
+      },{new:true}
+    )
+    if(updatedatask){
+      res.status(200).json(updatedatask)
+    }else{
+      res.status(200).json('pls try again')
+    }
+  }
+  catch(err){
+    console.log(err);
+  }
+}
+
+// delete task
+exports.deleteTask = async(req,res)=>{
+  const {id,objectId}=req.body
+  // console.log(req.body);
+  
+  try{
+    const deleteData =  await workHistoryCollections.findOneAndUpdate(
+      {_id:new mongoose.Types.ObjectId(objectId)},
+      {
+        $pull :{
+          workUpdates:{
+            _id:new mongoose.Types.ObjectId(id)
+          }
+        }
+      },{new:true}
+    )
+    if(deleteData){
+      res.status(200).json('deleted')
+    }
+  }catch(err){
+    console.log(err);
+  }
+
+}
+
+// contract detailes update
+exports.contrctDetailes = async(req,res)=>{
+
+  const {id,totalArea,contractAmount,workDuration,startDate} = req.body
+  try{
+    const addDetailes = await workHistoryCollections.findOneAndUpdate(
+      {_id:new mongoose.Types.ObjectId(id)},
+      {
+        $set:{
+          area:totalArea,
+          amount:contractAmount,
+          duration:workDuration,
+          startDate:startDate,
+        }
+      },{new:true}
+    )
+    if(addDetailes){
+      res.status(200).json('updated')
+    }
+  }
+  catch(err){
+    console.log(err);
+  }
+}
+
+// cinfirmation emailsent from full work view
+exports.confirmEmailSent = async (req,res)=>{
+  const {userData,componyData}=req.body
+  console.log('helo');
+  try{
+    const notificationUpdate = await notificationCollection.findOneAndUpdate(
+      {userId:new mongoose.Types.ObjectId(userData._id),componyId:new mongoose.Types.ObjectId(componyData._id)},
+      {
+        $set : {
+          status:'mailed'
+        }
+      },
+      {new:true}
+    )
+
+    // change the status in workHistory
+    const workHistoryData = await workHistoryCollections.findOneAndUpdate(
+      {userId:new mongoose.Types.ObjectId(userData._id),componyId:new mongoose.Types.ObjectId(componyData._id),status:'requsted'},
+      {
+        $set:{
+          status:'Accepted'
+        }
+      }
+    )
+
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: userData.email,
+      subject: "Request accepted",
+      html: emailContent.connectionApprovalMail(userData.name ,componyData.componyName , componyData.category)
+    };
+    nodemailer.sentEmailOtp(mailOptions)
+    if(notificationUpdate){
+      res.status(200).json('mailed')
+    }
+  }
+  catch(err){
+
+  }
 }

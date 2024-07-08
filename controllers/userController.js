@@ -45,12 +45,14 @@ exports.notification = async (req, res) => {
     email = contractor.email;
   }
 
+  // notification saving
   const saveNotification = new notificationCollection({
     userId: new mongoose.Types.ObjectId(userId),
     contractorId: new mongoose.Types.ObjectId(contractorId),
     componyId: new mongoose.Types.ObjectId(componyId),
   });
 
+  // history saving
   const toHistory = new workHistoryCollections({
     userId: new mongoose.Types.ObjectId(userId),
     contractorId: new mongoose.Types.ObjectId(contractorId),
@@ -67,7 +69,7 @@ exports.notification = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
       to: email,
-      subject: "Connection requist",
+      subject: "Connection request",
       html: emailContent.connectionRequestMail(
         contractorName,
         userName,
@@ -163,7 +165,6 @@ exports.workhistory = async (req,res)=>{
         }
       }
     ])
-    console.log(history);
     res.status(200).json(history)
   }else if(user.category == 'user'){
     const history = await workHistoryCollections.aggregate([
@@ -177,8 +178,81 @@ exports.workhistory = async (req,res)=>{
           foreignField:"_id",
           as:'componyData'
         }
+      },
+      {
+        $lookup:{
+          from:'clientsignups',
+          localField:"userId",
+          foreignField:"_id",
+          as:'userData'
+        }
       }
     ])
     res.status(200).json(history)
   }
+}
+
+// location update
+exports.locationUpdate = async (req,res)=>{
+  const {componyId,district,placeOfWork,phoneNumber} = req.body
+
+  const userId = req.user.id
+  
+ try{
+  const workHistoryData = await workHistoryCollections.findOneAndUpdate(
+    {userId:new mongoose.Types.ObjectId(userId),componyId:new mongoose.Types.ObjectId(componyId)},
+    {
+      $set:{
+        district:district,
+        place:placeOfWork,
+        mobNo:phoneNumber
+      }
+    }
+  )
+  if(workHistoryData){
+    res.status(200).json('saved')
+  }
+ }catch(err){
+  console.log(err);
+ }
+}
+
+// work history get 
+exports.workhistoryGet= async (req,res)=>{
+  const userId = req.user.id
+  const ObjectId = req.query.id
+  const user = await clientSignupSchema.findById(userId)
+  console.log('objectId:',ObjectId );
+  try{
+    const history = await workHistoryCollections.aggregate([
+      {
+        $match:{_id:new mongoose.Types.ObjectId(ObjectId)},
+      },
+      {
+        $lookup:{
+          from:'registeredcomponys',
+          localField:"componyId",
+          foreignField:"_id",
+          as:'componyData'
+        }
+      },
+      {
+        $lookup:{
+          from:'clientsignups',
+          localField:"userId",
+          foreignField:"_id",
+          as:'userData'
+        }
+      }
+    ])
+    if(history){
+      res.status(200).json(history)
+    }else{
+      res.status(401).json('userd data not fount')
+    }
+  }
+  catch(err){
+    console.log(err);
+  }
+
 }
