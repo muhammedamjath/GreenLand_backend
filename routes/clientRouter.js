@@ -17,6 +17,7 @@ clientRouter.get('/singleNotificationGet',jwtAuthentication,contractorController
 clientRouter.get('/registeredCompnys',jwtAuthentication,contractorController.componyDetailesGet)
 clientRouter.get('/getSigleComponyDetailes/:id',jwtAuthentication,contractorController.singleComponyDetailes)
 clientRouter.get('/getUser',jwtAuthentication,contractorController.getUser)
+
 clientRouter.post('/componyRegistration',jwtAuthentication,multer.upload.single('image'),contractorController.componyReg)
 clientRouter.post('/updateCompony',jwtAuthentication,multer.upload.single('image'),contractorController.updatecompony)
 clientRouter.post('/profilePhotoUpdate',jwtAuthentication,multer.upload.single('image'),contractorController.changeProfileImage)
@@ -25,11 +26,14 @@ clientRouter.post('/taskUpdate',jwtAuthentication,contractorController.taskUpdat
 clientRouter.post('/projectDetailes',jwtAuthentication,contractorController.contrctDetailes)
 clientRouter.post('/deleteTaskUpdate',jwtAuthentication,contractorController.deleteTask)
 clientRouter.post('/confirmationEmail',jwtAuthentication,contractorController.confirmEmailSent)
+clientRouter.post('/projectCompleted',jwtAuthentication,contractorController.projectCompleted)
+
 
 // user controller
 clientRouter.get('/getAllCompony',jwtAuthentication,userController.getAllComponys)
 clientRouter.get('/notificationGet',jwtAuthentication,userController.notificationGet)
 clientRouter.get('/workHistory',jwtAuthentication,userController.workhistory)
+
 clientRouter.get('/singleHisGet',jwtAuthentication,userController.workhistoryGet)
 clientRouter.post('/notification',jwtAuthentication,userController.notification)
 clientRouter.post('/locationSave',jwtAuthentication,userController.locationUpdate)
@@ -37,8 +41,19 @@ clientRouter.post('/locationSave',jwtAuthentication,userController.locationUpdat
 // chat controller
 clientRouter.get('/chatList',jwtAuthentication,chatController.getChatList)
 clientRouter.get('/receiverData',jwtAuthentication,chatController.receiverData)
+
 clientRouter.post('/chatPost',jwtAuthentication,chatController.chatPost)
 clientRouter.post('/chatHistory',jwtAuthentication,chatController.chatHistoryGet)
+
+
+// invoice generate
+clientRouter.get('/generateInvoice',userController.generateInvoice)
+
+// review post
+clientRouter.get('/reviweGet',jwtAuthentication,userController.reviewsGet)
+clientRouter.post('/reviwePost',jwtAuthentication,userController.reviewPost)
+
+clientRouter.get('/getComponys',userController.getAllComponysToHome)
 
 
 

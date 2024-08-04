@@ -33,6 +33,23 @@ const Schema=new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         required:true
     },
+    reviews:{
+        type:[{
+            projectId:{
+                type:mongoose.Types.ObjectId
+            },
+            userId:{
+                type:mongoose.Types.ObjectId
+            },
+            starCount:{
+                type:Number
+            },
+            discription:{
+                type:String
+            }
+        }],
+        default:[]
+    },
     createdAt:{
         type:Date,
         default:Date.now
