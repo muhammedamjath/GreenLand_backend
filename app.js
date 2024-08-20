@@ -6,10 +6,12 @@ const cors=require('cors')
 const app=express()
 const server =require('http').createServer(app)
 
-
 const io = new Server(server,{
     cors:{
         origin:'*',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type'],
+        credentials: true
     },
 })
 

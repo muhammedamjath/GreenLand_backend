@@ -4,7 +4,6 @@ const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const emailContent = require("../utilities/emailContent");
 const jwt = require("jsonwebtoken");
-const { use } = require("../routes/authRouter");
 
 const emailRejex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 const passwordRejex =
