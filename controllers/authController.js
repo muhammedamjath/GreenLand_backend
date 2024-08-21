@@ -316,6 +316,7 @@ exports.loginPost = async (req, res) => {
             id: user._id,
             email: user.email,
             category: user.category,
+            image:user.image
           },
           token: token,
         });
